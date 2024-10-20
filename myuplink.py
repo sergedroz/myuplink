@@ -1,4 +1,4 @@
-#!/usr/env python3
+#!/usr/bin/env python3
 
 import datetime
 import json
@@ -13,7 +13,7 @@ def mk_state(l=3):
     """            
     wordlist = ["window", "previous","bite","sisters","brawny", "return","uncle",
                 "elbow", "queen", "desert", "rose", "suffer" ]
-    "-".join([ word_list[randrange(len(wordlist))] for i in range(l) ])
+    return "-".join([ wordlist[randrange(len(wordlist))] for i in range(l) ])
 
 
 class MyUplink(object):
@@ -136,6 +136,7 @@ class MyUplink(object):
     def get_systems(self):
         """
         Return all systems you have access to
+        Todo: Add iteration over pages to get all systems, not onlyy the first 10
         """
         return self.session.get( "https://api.myuplink.com/v2/systems/me").json()
         
@@ -147,17 +148,34 @@ class MyUplink(object):
 
 if __name__ == "__main__":
     
+  
+    import argparse
+    
+    
+    parser = argparse.ArgumentParser(
+                    prog='myuplink.py',
+                    description='Query myuplink API')
+    
+    parser.add_argument('-l', '--list', action='store_true', help="List available devices")      # option that takes a value
+    parser.add_argument('-r', '--read', help="Read out device given by id" )
+    args = parser.parse_args()
+
     client_id     = "client_id"
-    client_secret = client_password
+    client_secret = "client_password"
     redirect_url  = "https://example.comh/myuplink-p.php" 
     
+
     ms2 = MyUplink( client_id, client_secret, redirect_url )
     
     # get my systems:
-    
-    r = ms2.get_systems()
-    device_id = r['systems'][0]['devices'][0]['id']
+    if args.list:
+        r = ms2.get_systems()
+        for i in r['systems']:
+            print( "Sytem {}\nDevices".format(i['name']))
+            for j in i['devices']:
+                  print( "{}: {}".format( j['product']['name'], j['id'] ) )
     
     # Show settings:
-    for i in ms2.get_device_points(device_id):
-        print( "{}: {} {}".format( i['parameterName'],i['value'], i['parameterUnit'] ))
+    if args.read:
+        for i in ms2.get_device_points(args.read):
+            print( "{}: {} {}".format( i['parameterName'],i['value'], i['parameterUnit'] ))
