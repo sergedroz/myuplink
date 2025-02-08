@@ -95,6 +95,7 @@ class MyUplink(object):
 
         r = httpx.post( "https://api.myuplink.com/oauth/token", data=data)
         self.token = r.json()
+        print(self.token)
         self.expires_at = datetime.datetime.now() + datetime.timedelta(seconds=self.token['expires_in'])
         self.token['expires_at'] = int( self.expires_at.timestamp() ) 
         self.token_saver()
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         for i in r['systems']:
             print( "Sytem {}\nDevices".format(i['name']))
             for j in i['devices']:
-                  print( "{}: {}".format( j['product']['name'], j['id'] ) )
+                  print( "{}: {}".format( j['product']['name'], j['id'], j['connectionState'] ) )
     
     # Show settings:
     if args.read:
